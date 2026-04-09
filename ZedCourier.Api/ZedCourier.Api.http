@@ -1,4 +1,4 @@
-@ZedCourier.Api_HostAddress = http://localhost:5076
+@ZedCourier.Api_HostAddress = ${import.meta.env.VITE_API_URL}
 
 GET {{ZedCourier.Api_HostAddress}}/weatherforecast/
 Accept: application/json
