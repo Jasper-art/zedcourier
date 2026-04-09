@@ -20,10 +20,10 @@ export default function AuditTab() {
 
   useEffect(() => {
     Promise.all([
-      fetch('${import.meta.env.VITE_API_URL}/api/v1/finance/audit', {
+      fetch('https://zedcourier-1.onrender.com/api/v1/finance/audit', {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json()),
-      fetch('${import.meta.env.VITE_API_URL}/api/v1/branch', {
+      fetch('https://zedcourier-1.onrender.com/api/v1/branch', {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json())
     ])

@@ -20,7 +20,7 @@ export default function LabelTab() {
     setParcel(null)
     
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel`, {
+      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel`, {
           headers: { Authorization: `Bearer ${token()}` }
       })
       

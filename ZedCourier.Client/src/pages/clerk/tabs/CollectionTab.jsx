@@ -125,7 +125,7 @@ export default function CollectionTab() {
 
   const fetchParcelDetails = async (waybillNumber) => {
     try {
-      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
+      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const parcels = await res.json()
@@ -142,7 +142,7 @@ export default function CollectionTab() {
 
   const fetchTrackingLogs = async (parcelId) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${parcelId}`, {
+      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${parcelId}`, {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const data = await res.json()
@@ -349,7 +349,7 @@ export default function CollectionTab() {
 
   const sendReceiptEmail = async (collection) => {
     try {
-      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/notification/send-receipt', {
+      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/notification/send-receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({
@@ -381,7 +381,7 @@ export default function CollectionTab() {
 
   const notifySender = async (collection) => {
     try {
-      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/notification/notify-sender', {
+      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/notification/notify-sender', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({
@@ -403,7 +403,7 @@ export default function CollectionTab() {
 
   const submitCollection = async (collection, isFromQueue = false) => {
     try {
-      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
+      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const parcels = await res.json()
@@ -413,7 +413,7 @@ export default function CollectionTab() {
       if (parcel.deliveryPin !== collection.pin) throw new Error('Invalid PIN')
 
       // Submit collection
-      const updateRes = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${parcel.id}/status`, {
+      const updateRes = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${parcel.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({

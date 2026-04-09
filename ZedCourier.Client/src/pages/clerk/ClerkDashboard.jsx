@@ -57,7 +57,7 @@ export default function ClerkDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const parcelsRes = await fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
+      const parcelsRes = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json())
 
@@ -92,7 +92,7 @@ export default function ClerkDashboard() {
       return
     }
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel?search=${query}`, {
+      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel?search=${query}`, {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json())
       setSearchResults(res.slice(0, 5))

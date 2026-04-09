@@ -48,7 +48,7 @@ export default function MyParcelsTab() {
     setLoading(true)
     setFetchError(null)
     try {
-      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
+      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
         headers: { Authorization: `Bearer ${token()}` }
       })
       if (!res.ok) throw new Error(res.status === 401 ? 'Session expired.' : 'Failed to fetch parcels.')
@@ -97,7 +97,7 @@ export default function MyParcelsTab() {
     if (!selectedParcel) return
     setSendingPin(true); setPinError(''); setPinSuccess('')
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${selectedParcel.id}/send-delivery-pin`, {
+      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${selectedParcel.id}/send-delivery-pin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ sendEmail: channels.email, sendSms: channels.sms, sendWhatsapp: channels.whatsapp })
@@ -117,7 +117,7 @@ export default function MyParcelsTab() {
     if (!pinParcel) return
     setRegenerating(true); setRegenError(''); setRevealedPin('')
     try {
-      const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${pinParcel.id}/regenerate-pin`, {
+      const res  = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${pinParcel.id}/regenerate-pin`, {
         method: 'POST', headers: { Authorization: `Bearer ${token()}` }
       })
       const data = await res.json()

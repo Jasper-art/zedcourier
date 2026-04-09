@@ -1,4 +1,4 @@
-@ZedCourier.Api_HostAddress = ${import.meta.env.VITE_API_URL}
+@ZedCourier.Api_HostAddress = ${i'https://zedcourier-1.onrender.com
 
 GET {{ZedCourier.Api_HostAddress}}/weatherforecast/
 Accept: application/json
