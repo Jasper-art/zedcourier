@@ -22,7 +22,7 @@ export default function BranchesTab() {
   }, [])
 
   const fetchBranches = () => {
-    fetch('http://localhost:5076/api/v1/branch', {
+    fetch('${import.meta.env.VITE_API_URL}/api/v1/branch', {
       headers: { Authorization: `Bearer ${token()}` }
     })
       .then(r => r.json())
@@ -39,7 +39,7 @@ export default function BranchesTab() {
 
     setSubmitting(true)
     try {
-      const res = await fetch('http://localhost:5076/api/v1/branch', {
+      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/branch', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

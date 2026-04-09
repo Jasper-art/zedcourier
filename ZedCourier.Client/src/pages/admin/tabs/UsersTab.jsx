@@ -37,7 +37,7 @@ export default function UsersTab() {
 
   const loadUsers = () => {
     setLoadingUsers(true)
-    fetch('http://localhost:5076/api/v1/auth/users', {
+    fetch('${import.meta.env.VITE_API_URL}/api/v1/auth/users', {
       headers: { Authorization: `Bearer ${token()}` }
     }).then(r => r.json()).then(setUsers).catch(() => setUsers([])).finally(() => setLoadingUsers(false))
   }
@@ -48,7 +48,7 @@ export default function UsersTab() {
 
   const handleDeactivate = async id => {
     if (!confirm('Deactivate this user?')) return
-    await fetch(`http://localhost:5076/api/v1/auth/${id}/deactivate`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/${id}/deactivate`, {
       method: 'PUT', headers: { Authorization: `Bearer ${token()}` }
     })
     loadUsers()
@@ -59,7 +59,7 @@ export default function UsersTab() {
     setResetting(true)
     setResetMsg('')
     try {
-      const res = await fetch(`http://localhost:5076/api/v1/auth/${resetDialog.id}/reset-password`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/${resetDialog.id}/reset-password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ newPassword })

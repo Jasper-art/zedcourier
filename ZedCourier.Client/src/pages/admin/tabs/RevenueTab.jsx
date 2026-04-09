@@ -28,8 +28,8 @@ export default function RevenueTab() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:5076/api/v1/finance/daily', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
-      fetch('http://localhost:5076/api/v1/finance/branch', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json())
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/finance/daily', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/finance/branch', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json())
     ]).then(([d, b]) => { setDaily(d); setByBranch(b) })
       .finally(() => setLoading(false))
   }, [])

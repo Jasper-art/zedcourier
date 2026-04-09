@@ -20,10 +20,10 @@ export default function AuditTab() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:5076/api/v1/finance/audit', {
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/finance/audit', {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json()),
-      fetch('http://localhost:5076/api/v1/branch', {
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/branch', {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json())
     ])

@@ -45,7 +45,7 @@ export default function TrackingPortal() {
     setError('')
     setData(null)
     try {
-      const res  = await fetch(`http://localhost:5076/api/v1/tracking/${waybill.trim()}`)
+      const res  = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tracking/${waybill.trim()}`)
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Waybill not found')
       setData(json)

@@ -43,7 +43,7 @@ export default function ParcelsTab() {
 
   const load = () => {
     setLoading(true)
-    fetch('http://localhost:5076/api/v1/parcel', {
+    fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
       headers: { Authorization: `Bearer ${token()}` }
     })
       .then(r => r.json())
@@ -80,7 +80,7 @@ export default function ParcelsTab() {
     setUpdating(true)
     setUpdateMsg('')
     try {
-      const res = await fetch(`http://localhost:5076/api/v1/parcel/${selected.id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${selected.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ newStatus, notes: `Status updated to ${newStatus} by Admin.` })
@@ -103,7 +103,7 @@ export default function ParcelsTab() {
     setRegenError('')
     setRevealedPin('')
     try {
-      const res = await fetch(`http://localhost:5076/api/v1/parcel/${selected.id}/regenerate-pin`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${selected.id}/regenerate-pin`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token()}` }
       })

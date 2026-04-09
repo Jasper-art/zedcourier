@@ -49,7 +49,7 @@ export default function CreateUserTab() {
 
   const fetchBranches = async () => {
     try {
-      const res = await fetch('http://localhost:5076/api/v1/branch', {
+      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/branch', {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const data = await res.json()
@@ -123,7 +123,7 @@ export default function CreateUserTab() {
         whatsAppNumber: formData.whatsAppNumber?.trim() || ''
       }
 
-      const res = await fetch('http://localhost:5076/api/v1/auth/register', {
+      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -113,10 +113,10 @@ export default function OverviewTab() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:5076/api/v1/finance/summary', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
-      fetch('http://localhost:5076/api/v1/parcel',          { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
-      fetch('http://localhost:5076/api/v1/finance/branch',  { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
-      fetch('http://localhost:5076/api/v1/finance/daily',   { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/finance/summary', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel',          { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/finance/branch',  { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/finance/daily',   { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
     ])
       .then(([s, p, b, d]) => { setSummary(s); setParcels(p); setByBranch(b); setDaily(d) })
       .catch(err => setError(err.message))

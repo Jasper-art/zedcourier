@@ -41,7 +41,7 @@ export default function DriverDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch('http://localhost:5076/api/v1/parcel', {
+      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const parcels = await res.json()

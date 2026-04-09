@@ -53,10 +53,10 @@ export default function BookingTab() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:5076/api/v1/branch', {
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/branch', {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json()),
-      fetch('http://localhost:5076/api/v1/parcel', {
+      fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json())
     ])
@@ -140,13 +140,13 @@ export default function BookingTab() {
       if (!sendEmail && !sendSms && !sendWhatsapp) return
 
       // First, get the parcel to retrieve the PIN
-      const res = await fetch(`http://localhost:5076/api/v1/parcel/${parcelData.id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${parcelData.id}`, {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const parcelDetails = await res.json()
       const pin = parcelDetails.parcel?.deliveryPin || success?.pinForClient
 
-      await fetch(`http://localhost:5076/api/v1/parcel/${parcelData.id}/send-delivery-pin`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/v1/parcel/${parcelData.id}/send-delivery-pin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({
@@ -170,7 +170,7 @@ export default function BookingTab() {
 
       if (!sendEmail && !sendSms && !sendWhatsapp) return
 
-      await fetch('http://localhost:5076/api/v1/notification/notify-sender', {
+      await fetch('${import.meta.env.VITE_API_URL}/api/v1/notification/notify-sender', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({
@@ -198,7 +198,7 @@ export default function BookingTab() {
     setError('')
     setSuccess(null)
     try {
-      const res = await fetch('http://localhost:5076/api/v1/parcel', {
+      const res = await fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -219,7 +219,7 @@ export default function BookingTab() {
       const parcelId = data.waybill // Use waybill to identify parcel
       if (notificationPrefs.sendReceiverPin || notificationPrefs.notifySenderOnCreation) {
         // Get created parcel ID for sending pin
-        const parcelListRes = await fetch('http://localhost:5076/api/v1/parcel', {
+        const parcelListRes = await fetch('${import.meta.env.VITE_API_URL}/api/v1/parcel', {
           headers: { Authorization: `Bearer ${token()}` }
         })
         const parcelsList = await parcelListRes.json()
