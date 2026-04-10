@@ -142,7 +142,7 @@ export default function CollectionTab() {
 
   const fetchTrackingLogs = async (parcelId) => {
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${parcelId}`, {
+      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcelId}`, {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const data = await res.json()
@@ -413,7 +413,7 @@ export default function CollectionTab() {
       if (parcel.deliveryPin !== collection.pin) throw new Error('Invalid PIN')
 
       // Submit collection
-      const updateRes = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${parcel.id}/status`, {
+      const updateRes = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcel.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({

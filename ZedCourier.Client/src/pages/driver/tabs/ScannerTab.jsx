@@ -68,11 +68,11 @@ export default function ScannerTab() {
   }
 
   const fetchParcelDetails = async waybillNum => {
-    const trackRes  = await fetch('https://zedcourier-1.onrender.com}/api/v1/tracking/${waybillNum.trim()}`)
+    const trackRes  = await fetch(`https://zedcourier-1.onrender.com/api/v1/tracking/${waybillNum.trim()}`)
     const trackData = await trackRes.json()
     if (!trackRes.ok) throw new Error(trackData.error || 'Waybill not found')
 
-    const parcelRes  = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${trackData.parcelId}`, {
+    const parcelRes  = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${trackData.parcelId}`, {
       headers: { Authorization: `Bearer ${token()}` }
     })
     const parcelData = await parcelRes.json()
@@ -126,7 +126,7 @@ export default function ScannerTab() {
         localStorage.setItem('offlineScans', JSON.stringify(updated))
         setSuccess(`${selectedParcel.waybill} saved offline — will sync when online.`)
       } else {
-        const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${selectedParcel.parcelId}/status`, {
+        const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selectedParcel.parcelId}/status`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
           body: JSON.stringify({ newStatus: STATUS_MAP[action], notes: NOTE_MAP[action] })
@@ -162,7 +162,7 @@ export default function ScannerTab() {
   const syncOfflineScans = async () => {
     for (const scan of offlineScans) {
       try {
-        await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${scan.parcelId}/status`, {
+        await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${scan.parcelId}/status`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
           body: JSON.stringify({ newStatus: scan.status, notes: NOTE_MAP[scan.action] })
@@ -183,7 +183,7 @@ export default function ScannerTab() {
       try {
         const data = await fetchParcelDetails(wb)
         if (isOnline) {
-          const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${data.parcelId}/status`, {
+          const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${data.parcelId}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
             body: JSON.stringify({ newStatus: STATUS_MAP[action], notes: NOTE_MAP[action] })

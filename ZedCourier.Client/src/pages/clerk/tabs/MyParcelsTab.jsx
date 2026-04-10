@@ -97,7 +97,7 @@ export default function MyParcelsTab() {
     if (!selectedParcel) return
     setSendingPin(true); setPinError(''); setPinSuccess('')
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${selectedParcel.id}/send-delivery-pin`, {
+      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selectedParcel.id}/send-delivery-pin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ sendEmail: channels.email, sendSms: channels.sms, sendWhatsapp: channels.whatsapp })
@@ -117,7 +117,7 @@ export default function MyParcelsTab() {
     if (!pinParcel) return
     setRegenerating(true); setRegenError(''); setRevealedPin('')
     try {
-      const res  = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${pinParcel.id}/regenerate-pin`, {
+      const res  = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${pinParcel.id}/regenerate-pin`, {
         method: 'POST', headers: { Authorization: `Bearer ${token()}` }
       })
       const data = await res.json()

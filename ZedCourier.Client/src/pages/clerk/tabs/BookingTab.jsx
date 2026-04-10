@@ -140,13 +140,13 @@ export default function BookingTab() {
       if (!sendEmail && !sendSms && !sendWhatsapp) return
 
       // First, get the parcel to retrieve the PIN
-      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${parcelData.id}`, {
+      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcelData.id}`, {
         headers: { Authorization: `Bearer ${token()}` }
       })
       const parcelDetails = await res.json()
       const pin = parcelDetails.parcel?.deliveryPin || success?.pinForClient
 
-      await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${parcelData.id}/send-delivery-pin`, {
+      await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcelData.id}/send-delivery-pin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({

@@ -80,7 +80,7 @@ export default function ParcelsTab() {
     setUpdating(true)
     setUpdateMsg('')
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${selected.id}/status`, {
+      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selected.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ newStatus, notes: `Status updated to ${newStatus} by Admin.` })
@@ -103,7 +103,7 @@ export default function ParcelsTab() {
     setRegenError('')
     setRevealedPin('')
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel/${selected.id}/regenerate-pin`, {
+      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selected.id}/regenerate-pin`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token()}` }
       })

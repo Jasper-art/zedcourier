@@ -48,7 +48,7 @@ export default function UsersTab() {
 
   const handleDeactivate = async id => {
     if (!confirm('Deactivate this user?')) return
-    await fetch('https://zedcourier-1.onrender.com}/api/v1/auth/${id}/deactivate`, {
+    await fetch(`https://zedcourier-1.onrender.com/api/v1/auth/${id}/deactivate`, {
       method: 'PUT', headers: { Authorization: `Bearer ${token()}` }
     })
     loadUsers()
@@ -59,7 +59,7 @@ export default function UsersTab() {
     setResetting(true)
     setResetMsg('')
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/auth/${resetDialog.id}/reset-password`, {
+      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/auth/${resetDialog.id}/reset-password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ newPassword })

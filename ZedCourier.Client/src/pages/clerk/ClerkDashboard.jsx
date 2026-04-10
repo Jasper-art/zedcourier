@@ -92,7 +92,7 @@ export default function ClerkDashboard() {
       return
     }
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com}/api/v1/parcel?search=${query}`, {
+      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel?search=${query}`, {
         headers: { Authorization: `Bearer ${token()}` }
       }).then(r => r.json())
       setSearchResults(res.slice(0, 5))
