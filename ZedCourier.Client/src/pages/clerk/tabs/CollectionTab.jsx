@@ -18,7 +18,7 @@ import BadgeIcon from '@mui/icons-material/Badge'
 import DownloadIcon from '@mui/icons-material/Download'
 import TimelineIcon from '@mui/icons-material/Timeline'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { api } from '../../../api'
+import { api, apiPost, apiGet, apiPut } from '../../../api'
 
 export default function CollectionTab() {
   // Core states
@@ -138,7 +138,7 @@ const fetchParcelDetails = async (waybillNumber) => {
 
 const fetchTrackingLogs = async (parcelId) => {
     try {
-      const data = await api.apiGet(`parcel/${parcelId}`)
+    const data = await apiGet(  `parcel/${parcelId}`)
       setTrackingLogs(data.logs || [])
     } catch (err) {
       console.error('Error fetching tracking:', err)
@@ -342,7 +342,7 @@ const fetchTrackingLogs = async (parcelId) => {
 
 const sendReceiptEmail = async (collection) => {
     try {
-      const data = await api.apiPost('notification/send-receipt', {
+     const data = await apiPost( 'notification/send-receipt', {
         recipientEmail: collection.receiverEmail,
         recipientName: collection.receiverName,
         recipientPhone: collection.receiverPhone,
@@ -366,7 +366,7 @@ const sendReceiptEmail = async (collection) => {
 
 const notifySender = async (collection) => {
     try {
-      await api.apiPost('notification/notify-sender', {
+     await apiPost( 'notification/notify-sender', {
         senderPhone: collection.senderPhone,
         senderEmail: collection.senderEmail,
         waybill: collection.waybill,
@@ -391,7 +391,7 @@ const notifySender = async (collection) => {
       if (parcel.deliveryPin !== collection.pin) throw new Error('Invalid PIN')
 
       // Submit collection
-      await api.apiPut(`parcel/${parcel.id}/status`, {
+      await apiPut(`parcel/${parcel.id}/status`, {
         newStatus: 'Collected',
         notes: collection.notes,
         deliveryPin: collection.pin,

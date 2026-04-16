@@ -11,7 +11,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import KeyIcon from '@mui/icons-material/Key'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
-import { api } from '../../../api'
+import { api, apiPost } from '../../../api'
 
 const STATUS_COLOR = {
   Recorded: 'default', InTransit: 'warning',
@@ -93,7 +93,7 @@ const handleSendPin = async () => {
     if (!selectedParcel) return
     setSendingPin(true); setPinError(''); setPinSuccess('')
     try {
-      await api.apiPost(`parcel/${selectedParcel.id}/send-delivery-pin`, {
+      await apiPost(`parcel/${selectedParcel.id}/send-delivery-pin`, {
         sendEmail: channels.email,
         sendSms: channels.sms,
         sendWhatsapp: channels.whatsapp
@@ -112,7 +112,7 @@ const handleRegeneratePin = async () => {
     if (!pinParcel) return
     setRegenerating(true); setRegenError(''); setRevealedPin('')
     try {
-      const data = await api.apiPost(`parcel/${pinParcel.id}/regenerate-pin`, {})
+      const data = await apiPost(`parcel/${pinParcel.id}/regenerate-pin`, {})
       setRevealedPin(data.pin)
     } catch (err) { setRegenError(err.message) }
     finally { setRegenerating(false) }

@@ -8,7 +8,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import RestoreIcon from '@mui/icons-material/Restore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { api, getUser } from '../../../api'
+import { api, apiPost, apiGet, getUser } from '../../../api'
 
 export default function BookingTab() {
   const [branches, setBranches] = useState([])
@@ -137,7 +137,7 @@ useEffect(() => {
       const parcelDetails = await api.apiGet(`parcel/${parcelData.id}`)
       const pin = parcelDetails.parcel?.deliveryPin || success?.pinForClient
 
-      await api.apiPost(`parcel/${parcelData.id}/send-delivery-pin`, {
+      await apiPost(`parcel/${parcelData.id}/send-delivery-pin`, {
         sendEmail: sendEmail,
         sendSms: sendSms,
         sendWhatsapp: sendWhatsapp
@@ -157,7 +157,7 @@ const notifySender = async (waybill) => {
 
       if (!sendEmail && !sendSms && !sendWhatsapp) return
 
-      await api.apiPost('notification/notify-sender', {
+      await apiPost('notification/notify-sender', {
         senderEmail: form.senderEmail,
         senderPhone: form.senderPhone,
         waybill: waybill,
@@ -181,7 +181,7 @@ const handleSubmit = async () => {
     setError('')
     setSuccess(null)
     try {
-      const data = await api.apiPost('parcel', {
+      const data = await apiPost('parcel', {
         ...form,
         weightKg: parseFloat(form.weightKg) || 0,
         cost: parseFloat(form.cost)
