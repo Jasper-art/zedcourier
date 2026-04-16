@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { api } from '../../api'
 import {
   Box, Drawer, List, ListItem, ListItemButton, ListItemIcon,
   ListItemText, Typography, Avatar, Divider, BottomNavigation,

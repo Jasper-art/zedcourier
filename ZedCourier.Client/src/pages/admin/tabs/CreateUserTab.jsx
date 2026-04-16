@@ -7,7 +7,7 @@ import {
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
-import { api } from '../../api'
+import { api } from '../../../api'
 
 function generatePassword() {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#!'

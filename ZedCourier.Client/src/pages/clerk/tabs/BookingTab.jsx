@@ -8,7 +8,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import RestoreIcon from '@mui/icons-material/Restore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { api, getUser } from '../../api'
+import { api, getUser } from '../../../api'
 
 export default function BookingTab() {
   const [branches, setBranches] = useState([])

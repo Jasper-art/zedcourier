@@ -3,7 +3,7 @@ import { Box, Typography, Card, CardContent, CircularProgress, Grid, Chip } from
 import TrendingUpIcon  from '@mui/icons-material/TrendingUp'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
-import { api } from '../../api'
+import { api } from '../../../api'
 
 const KpiCard = ({ label, value, sub, icon, color }) => (
   <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #222', height: '100%' }}>

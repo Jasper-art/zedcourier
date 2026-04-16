@@ -4,7 +4,7 @@ import {
   Typography, Alert, CircularProgress, Divider
 } from '@mui/material'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
-import { api, setAuth, clearAuth } from '../../api'
+import { api, setAuth } from '../api'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')

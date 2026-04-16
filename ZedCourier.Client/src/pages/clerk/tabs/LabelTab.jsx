@@ -4,7 +4,7 @@ import {
   Button, Alert, CircularProgress, Divider
 } from '@mui/material'
 import { QRCodeSVG } from 'qrcode.react' // High-quality SVG QR generator
-import { api } from '../../api'
+import { api } from '../../../api'
 
 export default function LabelTab() {
   const [waybill, setWaybill] = useState('')

@@ -18,7 +18,7 @@ import BadgeIcon from '@mui/icons-material/Badge'
 import DownloadIcon from '@mui/icons-material/Download'
 import TimelineIcon from '@mui/icons-material/Timeline'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-import { api } from '../../api'
+import { api } from '../../../api'
 
 export default function CollectionTab() {
   // Core states

@@ -3,7 +3,7 @@ import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import SearchIcon from '@mui/icons-material/Search'
 
-import { api } from '../../api'
+import { api } from '../../../api'
 
 export default function AuditTab() {
   const [logs, setLogs] = useState([])

@@ -19,7 +19,7 @@ import ScannerTab from './tabs/ScannerTab'
 import { api, getUser, clearAuth } from '../../api'
 
 const DRAWER_WIDTH = 240
-import { api, getUser } from '../../api'
+
 
 const NAV = [
   { label: 'Dashboard',   icon: <DashboardIcon />,       tab: 'dashboard' },
@@ -32,7 +32,7 @@ export default function DriverDashboard() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+ const user = getUser()
 
   useEffect(() => {
     fetchDashboardData()
@@ -65,15 +65,10 @@ const fetchDashboardData = async () => {
     }
   }
 
-const handleLogout = async () => {
-    try {
-      await api.logout()
-    } catch (err) {
-      console.error('Logout error:', err)
-    }
-    clearAuth()
-    window.location.href = '/login'
-  }
+const handleLogout = () => {
+  clearAuth()
+  window.location.href = '/login'
+}
 
   const renderDashboard = () => (
     <Box>

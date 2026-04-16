@@ -14,7 +14,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis,
   Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend
 } from 'recharts'
-import { api, getUser } from '../../api'
+import { api, getUser } from '../../../api'
 
 const STATUS_COLOR = {
   Recorded: 'default', InTransit: 'warning',

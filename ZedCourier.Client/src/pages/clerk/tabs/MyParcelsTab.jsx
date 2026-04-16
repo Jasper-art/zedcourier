@@ -11,7 +11,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import KeyIcon from '@mui/icons-material/Key'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
-import { api } from '../../api'
+import { api } from '../../../api'
 
 const STATUS_COLOR = {
   Recorded: 'default', InTransit: 'warning',

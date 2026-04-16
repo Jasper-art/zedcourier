@@ -11,7 +11,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { useNavigate } from 'react-router-dom'
 
-import { api, getToken as token } from '../api'
+import { api, getToken as token } from '../../../api'
 
 const ROLE_COLOR = {
   Admin:  { bg: '#ef535020', color: '#ef5350' },

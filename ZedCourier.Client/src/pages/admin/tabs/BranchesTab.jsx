@@ -7,7 +7,7 @@ import PhoneIcon from '@mui/icons-material/Phone'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 
-import { api } from '../../api'
+import { api } from '../../../api'
 
 export default function BranchesTab() {
   const [branches, setBranches] = useState([])
