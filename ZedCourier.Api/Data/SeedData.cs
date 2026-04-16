@@ -1,6 +1,4 @@
 using ZedCourier.Api.Models;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
 
 namespace ZedCourier.Api.Data
@@ -14,10 +12,15 @@ namespace ZedCourier.Api.Data
             {
                 var branches = new List<Branch>
                 {
-                    new Branch { Id = Guid.NewGuid(), Name = "Sinda Main Branch",   Town = "Sinda",   Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new Branch { Id = Guid.NewGuid(), Name = "Katete Main Branch",  Town = "Katete",  Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new Branch { Id = Guid.NewGuid(), Name = "Petauke Main Branch", Town = "Petauke", Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new Branch { Id = Guid.NewGuid(), Name = "Chipata Main Branch", Town = "Chipata", Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Sinda Main Branch",    Town = "Sinda",    Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Katete Main Branch",   Town = "Katete",   Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Petauke Main Branch",  Town = "Petauke",  Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Chipata Main Branch",  Town = "Chipata",  Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Lundazi Main Branch",  Town = "Lundazi",  Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Chadiza Main Branch",  Town = "Chadiza",  Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Nyimba Main Branch",   Town = "Nyimba",   Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Mambwe Main Branch",   Town = "Mambwe",   Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new Branch { Id = Guid.NewGuid(), Name = "Vubwi Main Branch",    Town = "Vubwi",    Province = "Eastern", IsActive = true, CreatedAt = DateTime.UtcNow },
                 };
                 context.Branches.AddRange(branches);
                 context.SaveChanges();
@@ -26,7 +29,6 @@ namespace ZedCourier.Api.Data
             // 2. Seed Admin User
             if (!context.Users.Any())
             {
-                // Find Chipata branch to link the admin to it
                 var chipata = context.Branches.FirstOrDefault(b => b.Town == "Chipata");
 
                 context.Users.Add(new User
@@ -34,9 +36,9 @@ namespace ZedCourier.Api.Data
                     Id = Guid.NewGuid(),
                     FullName = "Super Admin",
                     Email = "admin@zedcourier.com",
-                    PasswordHash = HashPassword("Admin@1234"), // Must match AuthController hashing
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@1234"),
                     Role = "Admin",
-                    BranchId = chipata?.Id, // Using the safe navigation operator
+                    BranchId = chipata?.Id,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
                     WhatsAppNumber = "0000000000"
@@ -44,14 +46,15 @@ namespace ZedCourier.Api.Data
 
                 context.SaveChanges();
             }
-        }
 
-        private static string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            // Using ToHexString to match the updated AuthController implementation
-            return Convert.ToHexString(bytes).ToLower();
+            // 3. Migrate any SHA256 passwords to BCrypt
+            var usersToMigrate = context.Users.ToList();
+            foreach (var user in usersToMigrate)
+            {
+                if (user.PasswordHash.Length == 64)
+                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@1234");
+            }
+            context.SaveChanges();
         }
     }
 }
