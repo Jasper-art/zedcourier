@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using ZedCourier.Api.Data;
 using ZedCourier.Api.Models;
+using ZedCourier.Api.Services;
 
 namespace ZedCourier.Api.Controllers
 {
@@ -32,13 +33,14 @@ namespace ZedCourier.Api.Controllers
                 if (request == null || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
                     return BadRequest(new { error = "Email and password are required." });
 
-                var passwordHash = HashPassword(request.Password);
                 var user = await _context.Users
-                    .Include(u => u.Branch)
-                    .FirstOrDefaultAsync(u =>
-                        u.Email == request.Email.ToLower().Trim() &&
-                        u.PasswordHash == passwordHash &&
-                        u.IsActive);
+      .Include(u => u.Branch)
+      .FirstOrDefaultAsync(u =>
+          u.Email == request.Email.ToLower().Trim() &&
+          u.IsActive);
+
+                if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                    return Unauthorized(new { error = "Invalid email or password." });
 
                 if (user == null)
                     return Unauthorized(new { error = "Invalid email or password." });
@@ -91,7 +93,7 @@ namespace ZedCourier.Api.Controllers
                     Id = Guid.NewGuid(),
                     FullName = request.FullName.Trim(),
                     Email = normalizedEmail,
-                    PasswordHash = HashPassword(request.Password),
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     Role = string.IsNullOrWhiteSpace(request.Role) ? "Clerk" : request.Role,
                     BranchId = finalBranchId,
                     DateOfBirth = request.DateOfBirth,
@@ -147,7 +149,7 @@ namespace ZedCourier.Api.Controllers
                 var user = await _context.Users.FindAsync(id);
                 if (user == null) return NotFound(new { error = "User not found." });
 
-                user.PasswordHash = HashPassword(request.NewPassword);
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
                 await _context.SaveChangesAsync();
                 return Ok(new { message = "Password reset successfully." });
             }
@@ -217,6 +219,15 @@ namespace ZedCourier.Api.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        [HttpPost("logout")]
+        [Authorize]
+        public IActionResult Logout()
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (!string.IsNullOrEmpty(token))
+                TokenBlacklistService.RevokeToken(token);
+            return Ok(new { message = "Logged out successfully." });
+        }
         private static string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();

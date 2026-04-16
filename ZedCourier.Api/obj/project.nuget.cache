@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "YxX0DPILa6I=",
+  "dgSpecHash": "WMWcRlLYTVA=",
   "success": true,
   "projectFilePath": "C:\\Users\\innocent\\ZedCourierPro\\ZedCourier.Api\\ZedCourier.Api.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\innocent\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\innocent\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\innocent\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\10.0.5\\microsoft.aspnetcore.authentication.jwtbearer.10.0.5.nupkg.sha512",
     "C:\\Users\\innocent\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.1\\microsoft.aspnetcore.openapi.10.0.1.nupkg.sha512",

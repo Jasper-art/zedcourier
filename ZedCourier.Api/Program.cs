@@ -47,6 +47,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                if (TokenBlacklistService.IsTokenRevoked(token))
+                {
+                    context.Fail("Token has been revoked.");
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();

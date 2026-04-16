@@ -131,3 +131,6 @@ C:\Users\innocent\ZedCourierPro\ZedCourier.Api\obj\Debug\net10.0\ref\ZedCourier.
 C:\Users\innocent\ZedCourierPro\ZedCourier.Api\bin\Debug\net10.0\SendGrid.dll
 C:\Users\innocent\ZedCourierPro\ZedCourier.Api\bin\Debug\net10.0\StarkbankEcdsa.dll
 C:\Users\innocent\ZedCourierPro\ZedCourier.Api\bin\Debug\net10.0\Twilio.dll
+C:\Users\innocent\ZedCourierPro\ZedCourier.Api\bin\Debug\net10.0\vercel.json
+C:\Users\innocent\ZedCourierPro\ZedCourier.Api\bin\Debug\net10.0\BCrypt.Net-Next.dll
+C:\Users\innocent\ZedCourierPro\ZedCourier.Api\obj\Debug\net10.0\ZedCourier.Api.sourcelink.json
