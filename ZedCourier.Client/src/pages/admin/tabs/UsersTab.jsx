@@ -9,9 +9,8 @@ import BlockIcon from '@mui/icons-material/Block'
 import LockResetIcon from '@mui/icons-material/LockReset'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import { useNavigate } from 'react-router-dom'
-
-import { api, getToken as token } from '../../../api'
+import EditIcon from '@mui/icons-material/Edit'
+import { api } from '../../../api'
 
 const ROLE_COLOR = {
   Admin:  { bg: '#ef535020', color: '#ef5350' },
@@ -26,11 +25,14 @@ function generatePassword() {
   return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
 }
 
-export default function UsersTab() {
-  const navigate = useNavigate()
+export default function UsersTab({ onNavigate }) {
   const [users, setUsers] = useState([])
   const [loadingUsers, setLoadingUsers] = useState(true)
   const [resetDialog, setResetDialog] = useState(null)
+  const [editDialog, setEditDialog] = useState(null)
+  const [editData, setEditData] = useState({})
+  const [editMsg, setEditMsg] = useState('')
+  const [editing, setEditing] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [resetting, setResetting] = useState(false)
   const [resetMsg, setResetMsg] = useState('')
@@ -65,6 +67,39 @@ await api.resetPassword(resetDialog.id, { newPassword })
       setResetting(false)
     }
   }
+// ADD after handleResetPassword function, before openWhatsApp:
+  const handleEditOpen = (u) => {
+    setEditData({
+      fullName:       u.fullName,
+      email:          u.email,
+      whatsAppNumber: u.whatsAppNumber || '',
+      role:           u.role,
+      branchId:       u.branchId || '',
+    })
+    setEditMsg('')
+    setEditDialog(u)
+  }
+
+  const handleEditSave = async () => {
+    if (!editData.fullName.trim() || !editData.email.trim()) {
+      setEditMsg('Full name and email are required')
+      return
+    }
+    setEditing(true)
+    setEditMsg('')
+    try {
+      await api.updateUser(editDialog.id, editData)
+      setEditMsg('User updated successfully.')
+      loadUsers()
+      setTimeout(() => setEditDialog(null), 1500)
+    } catch (err) {
+      setEditMsg(err.message)
+    } finally {
+      setEditing(false)
+    }
+  }
+
+
 
   const openWhatsApp = creds => {
     const msg = encodeURIComponent(
@@ -82,7 +117,7 @@ await api.resetPassword(resetDialog.id, { newPassword })
         </Typography>
 <Button variant="contained" color="primary"
           startIcon={<PersonAddIcon />}
-          onClick={() => alert('Create User feature coming soon')}
+          onClick={() => onNavigate?.('create')}
           sx={{ px: 3, py: 1.2 }}>
           Create User
         </Button>
@@ -138,7 +173,13 @@ await api.resetPassword(resetDialog.id, { newPassword })
                       color={u.isActive ? 'success' : 'default'} />
                   </TableCell>
                   <TableCell>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <Tooltip title="Edit User">
+                        <IconButton size="small" sx={{ color: '#ce93d8' }}
+                          onClick={() => handleEditOpen(u)}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                       <Tooltip title="Reset Password">
                         <IconButton size="small" sx={{ color: '#4fc3f7' }}
                           onClick={() => { setResetDialog(u); setResetMsg(''); setNewPassword('') }}>

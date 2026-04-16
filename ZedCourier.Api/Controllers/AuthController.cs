@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using ZedCourier.Api.Data;
 using ZedCourier.Api.Models;
@@ -40,9 +39,6 @@ namespace ZedCourier.Api.Controllers
           u.IsActive);
 
                 if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-                    return Unauthorized(new { error = "Invalid email or password." });
-
-                if (user == null)
                     return Unauthorized(new { error = "Invalid email or password." });
 
                 var token = GenerateJwt(user);
@@ -219,6 +215,33 @@ namespace ZedCourier.Api.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound(new { error = "User not found." });
+
+            user.FullName = request.FullName?.Trim() ?? user.FullName;
+            user.Email = request.Email?.Trim().ToLower() ?? user.Email;
+            user.WhatsAppNumber = request.WhatsAppNumber?.Trim() ?? user.WhatsAppNumber;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "User updated." });
+        }
+
+        public class UpdateUserRequest
+        {
+            public string? FullName { get; set; }
+            public string? Email { get; set; }
+            public string? WhatsAppNumber { get; set; }
+        }
+
+
+
+
+
+
         [HttpPost("logout")]
         [Authorize]
         public IActionResult Logout()
@@ -228,12 +251,7 @@ namespace ZedCourier.Api.Controllers
                 TokenBlacklistService.RevokeToken(token);
             return Ok(new { message = "Logged out successfully." });
         }
-        private static string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToHexString(bytes).ToLower();
-        }
+
     }
 
     public class RegisterRequest

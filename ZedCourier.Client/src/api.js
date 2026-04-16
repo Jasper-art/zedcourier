@@ -72,6 +72,7 @@ export const api = {
   logout: () => apiPost('auth/logout'),
   register:       (body)     => apiPost('auth/register', body),
   getUsers:       ()         => apiGet('auth/users'),
+  updateUser: (id, body) => apiPut(`auth/${id}`, body),
   // ADD after getUsers line:
 getAuditLogs: () => apiGet('finance/audit'),
   deactivate:     (id)       => apiPut(`auth/${id}/deactivate`),
