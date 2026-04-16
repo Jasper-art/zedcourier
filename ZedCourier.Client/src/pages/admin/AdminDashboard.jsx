@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { api } from '../../api'
 import {
   Box, Drawer, List, ListItem, ListItemButton, ListItemIcon,
   ListItemText, Typography, Avatar, Divider, BottomNavigation,
@@ -21,37 +22,58 @@ import AuditTab from './tabs/AuditTab'
 import BranchesTab from './tabs/BranchesTab'
 import UsersTab from './tabs/UsersTab'
 import CreateUserTab from './tabs/CreateUserTab'
+import { api, clearAuth, getUser } from '../../api'
 
 const DRAWER_WIDTH = 240
 
-const NAV = [
-  { label: 'Overview',    icon: <DashboardIcon />,     tab: 'overview' },
-  { label: 'Parcels',     icon: <LocalShippingIcon />,  tab: 'parcels'  },
-  { label: 'Revenue',     icon: <BarChartIcon />,       tab: 'revenue'  },
-  { label: 'Branches',    icon: <LocationOnIcon />,     tab: 'branches' },
-  { label: 'Users',       icon: <PeopleIcon />,         tab: 'users'    },
-  { label: 'Create User', icon: <PersonAddIcon />,      tab: 'create'   },
-  { label: 'Audit Log',   icon: <HistoryIcon />,        tab: 'audit'    },
-]
+const getNavByRole = (role) => {
+  const allNav = [
+    { label: 'Overview',    icon: <DashboardIcon />,     tab: 'overview' },
+    { label: 'Parcels',     icon: <LocalShippingIcon />,  tab: 'parcels'  },
+    { label: 'Revenue',     icon: <BarChartIcon />,       tab: 'revenue'  },
+    { label: 'Branches',    icon: <LocationOnIcon />,     tab: 'branches' },
+    { label: 'Users',       icon: <PeopleIcon />,         tab: 'users'    },
+    { label: 'Create User', icon: <PersonAddIcon />,      tab: 'create'   },
+    { label: 'Audit Log',   icon: <HistoryIcon />,        tab: 'audit'    },
+  ]
+  
+  if (role === 'Admin') return allNav
+  
+  return allNav.filter(n => !['revenue', 'users', 'create', 'audit'].includes(n.tab))
+}
 
-// Bottom nav shows only top 5 most used tabs on mobile
-const BOTTOM_NAV = ['overview', 'parcels', 'revenue', 'users', 'create']
+const getBottomNavByRole = (role) => {
+  if (role === 'Admin') return ['overview', 'parcels', 'revenue', 'users', 'create']
+  return ['overview', 'parcels', 'branches']
+}
 
 export default function AdminDashboard() {
-  const [active,      setActive]      = useState('overview')
+const [active,      setActive]      = useState('overview')
   const [mobileOpen,  setMobileOpen]  = useState(false)
+  const [financeData, setFinanceData] = useState({ daily: [], byBranch: [], summary: null, loading: true })
   const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const NAV = getNavByRole(user.role)
+  const BOTTOM_NAV = getBottomNavByRole(user.role)
 
-  const handleLogout = () => {
-    localStorage.clear()
+  useEffect(() => {
+    Promise.all([api.financeSummary(), api.financeDaily(), api.financeBranch()])
+      .then(([summary, daily, byBranch]) => {
+        setFinanceData({ summary, daily: daily ?? [], byBranch: byBranch ?? [], loading: false })
+      })
+      .catch(() => setFinanceData(f => ({ ...f, loading: false })))
+  }, [])
+
+const handleLogout = async () => {
+    try { await api.logout() } catch (_) {}
+    clearAuth()
     window.location.href = '/login'
   }
 
   const renderTab = () => {
     switch (active) {
-      case 'overview':  return <OverviewTab />
+     case 'overview':  return <OverviewTab  finance={financeData} />
       case 'parcels':   return <ParcelsTab />
-      case 'revenue':   return <RevenueTab />
+      case 'revenue':   return <RevenueTab   finance={financeData} />
       case 'branches':  return <BranchesTab />
       case 'users':     return <UsersTab />
       case 'create':    return <CreateUserTab />

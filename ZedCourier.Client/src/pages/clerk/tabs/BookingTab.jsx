@@ -8,9 +8,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import RestoreIcon from '@mui/icons-material/Restore'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-
-const token = () => localStorage.getItem('token')
-const user = () => JSON.parse(localStorage.getItem('user') || '{}')
+import { api, getUser } from '../../api'
 
 export default function BookingTab() {
   const [branches, setBranches] = useState([])
@@ -51,21 +49,17 @@ export default function BookingTab() {
 
   const [formErrors, setFormErrors] = useState({})
 
-  useEffect(() => {
+useEffect(() => {
     Promise.all([
-      fetch('https://zedcourier-1.onrender.com/api/v1/branch', {
-        headers: { Authorization: `Bearer ${token()}` }
-      }).then(r => r.json()),
-      fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-        headers: { Authorization: `Bearer ${token()}` }
-      }).then(r => r.json())
+      api.getBranches(),
+      api.getParcels()
     ])
       .then(([branchesData, parcelsData]) => {
         setBranches(branchesData)
         setParcels(parcelsData)
         
         // Auto-fill origin branch with user's branch
-        const userBranchId = user().branchId
+        const userBranchId = getUser().branchId
         if (userBranchId) {
           setForm(prev => ({ ...prev, originBranchId: userBranchId }))
         }
@@ -139,28 +133,21 @@ export default function BookingTab() {
 
       if (!sendEmail && !sendSms && !sendWhatsapp) return
 
-      // First, get the parcel to retrieve the PIN
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcelData.id}`, {
-        headers: { Authorization: `Bearer ${token()}` }
-      })
-      const parcelDetails = await res.json()
+// First, get the parcel to retrieve the PIN
+      const parcelDetails = await api.apiGet(`parcel/${parcelData.id}`)
       const pin = parcelDetails.parcel?.deliveryPin || success?.pinForClient
 
-      await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcelData.id}/send-delivery-pin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({
-          sendEmail: sendEmail,
-          sendSms: sendSms,
-          sendWhatsapp: sendWhatsapp
-        })
+      await api.apiPost(`parcel/${parcelData.id}/send-delivery-pin`, {
+        sendEmail: sendEmail,
+        sendSms: sendSms,
+        sendWhatsapp: sendWhatsapp
       })
     } catch (err) {
       console.error('Error sending delivery PIN:', err)
     }
   }
 
-  const notifySender = async (waybill) => {
+const notifySender = async (waybill) => {
     try {
       if (!notificationPrefs.notifySenderOnCreation) return
 
@@ -170,25 +157,21 @@ export default function BookingTab() {
 
       if (!sendEmail && !sendSms && !sendWhatsapp) return
 
-      await fetch('https://zedcourier-1.onrender.com/api/v1/notification/notify-sender', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({
-          senderEmail: form.senderEmail,
-          senderPhone: form.senderPhone,
-          waybill: waybill,
-          receiverName: form.receiverName,
-          collectDate: new Date().toLocaleString(),
-          sendSms: sendSms,
-          sendWhatsapp: sendWhatsapp
-        })
+      await api.apiPost('notification/notify-sender', {
+        senderEmail: form.senderEmail,
+        senderPhone: form.senderPhone,
+        waybill: waybill,
+        receiverName: form.receiverName,
+        collectDate: new Date().toLocaleString(),
+        sendSms: sendSms,
+        sendWhatsapp: sendWhatsapp
       })
     } catch (err) {
       console.error('Error notifying sender:', err)
     }
   }
 
-  const handleSubmit = async () => {
+const handleSubmit = async () => {
     if (!validateForm()) {
       setError('Please fix the errors below')
       return
@@ -198,31 +181,19 @@ export default function BookingTab() {
     setError('')
     setSuccess(null)
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token()}`
-        },
-        body: JSON.stringify({
-          ...form,
-          weightKg: parseFloat(form.weightKg) || 0,
-          cost: parseFloat(form.cost)
-        })
+      const data = await api.apiPost('parcel', {
+        ...form,
+        weightKg: parseFloat(form.weightKg) || 0,
+        cost: parseFloat(form.cost)
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to create parcel')
       
       setSuccess(data)
 
-      // Send notifications if enabled
+// Send notifications if enabled
       const parcelId = data.waybill // Use waybill to identify parcel
       if (notificationPrefs.sendReceiverPin || notificationPrefs.notifySenderOnCreation) {
         // Get created parcel ID for sending pin
-        const parcelListRes = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-          headers: { Authorization: `Bearer ${token()}` }
-        })
-        const parcelsList = await parcelListRes.json()
+        const parcelsList = await api.getParcels()
         const createdParcel = parcelsList.find(p => p.waybillNumber === data.waybill)
         
         if (createdParcel) {
@@ -231,10 +202,10 @@ export default function BookingTab() {
         }
       }
 
-      setForm({
+  setForm({
         senderName: '', senderPhone: '', senderEmail: '',
         receiverName: '', receiverPhone: '', receiverEmail: '',
-        originBranchId: user().branchId || '', destinationBranchId: '',
+        originBranchId: getUser().branchId || '', destinationBranchId: '',
         deliveryLandmark: '', weightKg: '', cost: ''
       })
       
@@ -502,13 +473,13 @@ export default function BookingTab() {
             >
               {loading ? <CircularProgress size={22} color="inherit" /> : '✓ Create Parcel & Generate PIN'}
             </Button>
-            <Button
+<Button
               variant="outlined"
               onClick={() => {
                 setForm({
                   senderName: '', senderPhone: '', senderEmail: '',
                   receiverName: '', receiverPhone: '', receiverEmail: '',
-                  originBranchId: user().branchId || '', destinationBranchId: '',
+                  originBranchId: getUser().branchId || '', destinationBranchId: '',
                   deliveryLandmark: '', weightKg: '', cost: ''
                 })
                 setFormErrors({})

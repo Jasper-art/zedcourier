@@ -17,7 +17,7 @@ import KeyIcon from '@mui/icons-material/Key'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 
-const token = () => localStorage.getItem('token')
+import { api, apiPut, apiPost } from '../../api'
 
 const STATUS_COLOR = {
   Recorded: 'default', InTransit: 'warning',
@@ -41,15 +41,17 @@ export default function ParcelsTab() {
   const [regenerating, setRegenerating] = useState(false)
   const [regenError,   setRegenError]   = useState('')
 
-  const load = () => {
-    setLoading(true)
-    fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-      headers: { Authorization: `Bearer ${token()}` }
-    })
-      .then(r => r.json())
-      .then(setParcels)
-      .finally(() => setLoading(false))
+const load = async () => {
+  setLoading(true)
+  try {
+    const data = await api.getParcels()
+    setParcels(Array.isArray(data) ? data : [])
+  } catch {
+    setParcels([])
+  } finally {
+    setLoading(false)
   }
+}
 
   useEffect(() => { load() }, [])
 
@@ -80,13 +82,7 @@ export default function ParcelsTab() {
     setUpdating(true)
     setUpdateMsg('')
     try {
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selected.id}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({ newStatus, notes: `Status updated to ${newStatus} by Admin.` })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      await apiPut(`parcel/${selected.id}/status`, { newStatus, notes: `Status updated to ${newStatus} by Admin.` })
       setUpdateMsg('Status updated successfully.')
       load()
       setSelected(prev => ({ ...prev, status: newStatus }))
@@ -103,13 +99,8 @@ export default function ParcelsTab() {
     setRegenError('')
     setRevealedPin('')
     try {
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selected.id}/regenerate-pin`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token()}` }
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to regenerate PIN')
-      setRevealedPin(data.pin)
+     const data = await apiPost(`parcel/${selected.id}/regenerate-pin`)
+setRevealedPin(data.pin)
     } catch (err) {
       setRegenError(err.message)
     } finally {

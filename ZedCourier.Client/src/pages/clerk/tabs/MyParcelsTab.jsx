@@ -11,8 +11,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import KeyIcon from '@mui/icons-material/Key'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import WhatsAppIcon from '@mui/icons-material/WhatsApp'
-
-const token = () => localStorage.getItem('token')
+import { api } from '../../api'
 
 const STATUS_COLOR = {
   Recorded: 'default', InTransit: 'warning',
@@ -44,15 +43,12 @@ export default function MyParcelsTab() {
   useEffect(() => { fetchParcels() }, [])
   useEffect(() => { applyFilters() }, [allParcels, dateFilter, statusFilter, searchQuery, customDateStart, customDateEnd])
 
-  const fetchParcels = async () => {
+const fetchParcels = async () => {
     setLoading(true)
     setFetchError(null)
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-        headers: { Authorization: `Bearer ${token()}` }
-      })
-      if (!res.ok) throw new Error(res.status === 401 ? 'Session expired.' : 'Failed to fetch parcels.')
-      setAllParcels(await res.json())
+      const parcels = await api.getParcels()
+      setAllParcels(parcels)
     } catch (err) {
       setFetchError(err.message)
     } finally {
@@ -93,16 +89,15 @@ export default function MyParcelsTab() {
     setSelectedParcel(p); setShowPinModal(true); setPinError(''); setPinSuccess('')
   }
 
-  const handleSendPin = async () => {
+const handleSendPin = async () => {
     if (!selectedParcel) return
     setSendingPin(true); setPinError(''); setPinSuccess('')
     try {
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selectedParcel.id}/send-delivery-pin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({ sendEmail: channels.email, sendSms: channels.sms, sendWhatsapp: channels.whatsapp })
+      await api.apiPost(`parcel/${selectedParcel.id}/send-delivery-pin`, {
+        sendEmail: channels.email,
+        sendSms: channels.sms,
+        sendWhatsapp: channels.whatsapp
       })
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error || 'Failed') }
       setPinSuccess('PIN sent successfully!')
       setTimeout(() => { setShowPinModal(false); fetchParcels() }, 2000)
     } catch (err) { setPinError(err.message) }
@@ -113,15 +108,11 @@ export default function MyParcelsTab() {
     setPinParcel(p); setRevealedPin(''); setRegenError(''); setShowPinDialog(true)
   }
 
-  const handleRegeneratePin = async () => {
+const handleRegeneratePin = async () => {
     if (!pinParcel) return
     setRegenerating(true); setRegenError(''); setRevealedPin('')
     try {
-      const res  = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${pinParcel.id}/regenerate-pin`, {
-        method: 'POST', headers: { Authorization: `Bearer ${token()}` }
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to regenerate PIN')
+      const data = await api.apiPost(`parcel/${pinParcel.id}/regenerate-pin`, {})
       setRevealedPin(data.pin)
     } catch (err) { setRegenError(err.message) }
     finally { setRegenerating(false) }

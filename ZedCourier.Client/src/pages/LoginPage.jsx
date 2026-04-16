@@ -4,27 +4,30 @@ import {
   Typography, Alert, CircularProgress, Divider
 } from '@mui/material'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
+import { api, setAuth, clearAuth } from '../../api'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+const [loading, setLoading] = useState(false)
+
+  const handleLogout = async () => {
+    try {
+      await api.logout()
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
+    clearAuth()
+    window.location.href = '/login'
+  }
 
   const handleLogin = async () => {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Login failed')
-
-      localStorage.setItem('token', data.token)
-      localStorage.setItem('user', JSON.stringify(data.user))
+const data = await api.login({ email, password })
+      setAuth(data.token, data.user)
 
       const role = data.user.role
       window.location.href =

@@ -8,7 +8,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
-
+import { api } from '../../api'
 const STEP_LABELS = ['Recorded', 'In Transit', 'Arrived', 'Collected']
 
 const STEP_INDEX = {
@@ -45,9 +45,7 @@ export default function TrackingPortal() {
     setError('')
     setData(null)
     try {
-      const res  = await fetch(`https://zedcourier-1.onrender.com/api/v1/tracking/${waybill.trim()}`)
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Waybill not found')
+     const json = await api.getTracking(waybill.trim())
       setData(json)
     } catch (err) {
       setError(err.message)

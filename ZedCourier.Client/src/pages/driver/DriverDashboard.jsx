@@ -16,9 +16,10 @@ import MenuIcon from '@mui/icons-material/Menu'
 import CloseIcon from '@mui/icons-material/Close'
 import ManifestTab from './tabs/ManifestTab'
 import ScannerTab from './tabs/ScannerTab'
+import { api, getUser, clearAuth } from '../../api'
 
 const DRAWER_WIDTH = 240
-const token = () => localStorage.getItem('token')
+import { api, getUser } from '../../api'
 
 const NAV = [
   { label: 'Dashboard',   icon: <DashboardIcon />,       tab: 'dashboard' },
@@ -39,12 +40,9 @@ export default function DriverDashboard() {
     return () => clearInterval(interval)
   }, [])
 
-  const fetchDashboardData = async () => {
+const fetchDashboardData = async () => {
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-        headers: { Authorization: `Bearer ${token()}` }
-      })
-      const parcels = await res.json()
+      const parcels = await api.getParcels()
 
       const today = new Date().toDateString()
       const todayParcels = parcels.filter(p => new Date(p.createdAt).toDateString() === today)
@@ -67,8 +65,13 @@ export default function DriverDashboard() {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.clear()
+const handleLogout = async () => {
+    try {
+      await api.logout()
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
+    clearAuth()
     window.location.href = '/login'
   }
 

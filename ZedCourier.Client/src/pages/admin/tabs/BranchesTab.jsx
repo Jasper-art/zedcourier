@@ -7,7 +7,7 @@ import PhoneIcon from '@mui/icons-material/Phone'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 
-const token = () => localStorage.getItem('token')
+import { api } from '../../api'
 
 export default function BranchesTab() {
   const [branches, setBranches] = useState([])
@@ -20,16 +20,19 @@ export default function BranchesTab() {
   useEffect(() => {
     fetchBranches()
   }, [])
-
-  const fetchBranches = () => {
-    fetch('https://zedcourier-1.onrender.com/api/v1/branch', {
-      headers: { Authorization: `Bearer ${token()}` }
-    })
-      .then(r => r.json())
-      .then(setBranches)
-      .catch(err => setError(err.message))
-      .finally(() => setLoading(false))
+const fetchBranches = async () => {
+  setLoading(true)
+  try {
+    const data = await api.getBranches()
+    setBranches(Array.isArray(data) ? data : [])
+    setError(null)
+  } catch (err) {
+    setError(err.message)
+    setBranches([])
+  } finally {
+    setLoading(false)
   }
+}
 
   const handleAddBranch = async () => {
     if (!formData.name || !formData.town || !formData.province) {
@@ -39,16 +42,7 @@ export default function BranchesTab() {
 
     setSubmitting(true)
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/branch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token()}`
-        },
-        body: JSON.stringify(formData)
-      })
-
-      if (!res.ok) throw new Error('Failed to create branch')
+     await api.createBranch(formData)
       
       setOpenModal(false)
       setFormData({ name: '', town: '', province: '', managerName: '', managerPhone: '', staffCount: '' })

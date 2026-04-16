@@ -23,7 +23,7 @@ import LabelTab from './tabs/LabelTab'
 import MyParcelsTab from './tabs/MyParcelsTab'
 
 const DRAWER_WIDTH = 240
-const token = () => localStorage.getItem('token')
+import { api, getUser } from '../../api'
 
 const NAV = [
   { label: 'Dashboard',         icon: <TrendingUpIcon />,    tab: 'dashboard'  },
@@ -47,7 +47,7 @@ export default function ClerkDashboard() {
   const [openSearch, setOpenSearch] = useState(false)
   const [notifications, setNotifications] = useState([])
   const [showNotifications, setShowNotifications] = useState(false)
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const user = getUser()
 
   useEffect(() => {
     fetchDashboardData()
@@ -55,11 +55,9 @@ export default function ClerkDashboard() {
     return () => clearInterval(interval)
   }, [])
 
-  const fetchDashboardData = async () => {
+const fetchDashboardData = async () => {
     try {
-      const parcelsRes = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-        headers: { Authorization: `Bearer ${token()}` }
-      }).then(r => r.json())
+      const parcelsRes = await api.getParcels()
 
       const today = new Date().toDateString()
       const todayParcels = parcelsRes.filter(p => new Date(p.createdAt).toDateString() === today)
@@ -92,16 +90,20 @@ export default function ClerkDashboard() {
       return
     }
     try {
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel?search=${query}`, {
-        headers: { Authorization: `Bearer ${token()}` }
-      }).then(r => r.json())
-      setSearchResults(res.slice(0, 5))
+   const res = await api.getParcels()
+      const q = query.toLowerCase()
+      setSearchResults(res.filter(p =>
+        p.waybillNumber?.toLowerCase().includes(q) ||
+        p.senderPhone?.includes(q) ||
+        p.receiverPhone?.includes(q)
+      ).slice(0, 5))
     } catch (err) {
       console.error('Search failed:', err)
     }
   }
 
-  const handleLogout = () => {
+const handleLogout = async () => {
+    try { await api.logout() } catch (_) {}
     localStorage.clear()
     window.location.href = '/login'
   }
@@ -346,7 +348,8 @@ export default function ClerkDashboard() {
             placeholder="Search waybill, phone..."
             value={searchValue}
             onChange={(e) => { setSearchValue(e.target.value); handleSearch(e.target.value) }}
-            onFocus={() => setOpenSearch(true)}
+           onFocus={() => setOpenSearch(true)}
+            onBlur={() => setTimeout(() => setOpenSearch(false), 200)}
             size="small"
             InputProps={{ startAdornment: <SearchIcon sx={{ mr: 1, color: '#506680', fontSize: 18 }} /> }}
             sx={{

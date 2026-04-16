@@ -11,7 +11,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { useNavigate } from 'react-router-dom'
 
-const token = () => localStorage.getItem('token')
+import { api, getToken as token } from '../api'
 
 const ROLE_COLOR = {
   Admin:  { bg: '#ef535020', color: '#ef5350' },
@@ -35,22 +35,18 @@ export default function UsersTab() {
   const [resetting, setResetting] = useState(false)
   const [resetMsg, setResetMsg] = useState('')
 
-  const loadUsers = () => {
+const loadUsers = () => {
     setLoadingUsers(true)
-    fetch('https://zedcourier-1.onrender.com/api/v1/auth/users', {
-      headers: { Authorization: `Bearer ${token()}` }
-    }).then(r => r.json()).then(setUsers).catch(() => setUsers([])).finally(() => setLoadingUsers(false))
+    api.getUsers().then(setUsers).catch(() => setUsers([])).finally(() => setLoadingUsers(false))
   }
 
   useEffect(() => {
     loadUsers()
   }, [])
 
-  const handleDeactivate = async id => {
+ const handleDeactivate = async id => {
     if (!confirm('Deactivate this user?')) return
-    await fetch(`https://zedcourier-1.onrender.com/api/v1/auth/${id}/deactivate`, {
-      method: 'PUT', headers: { Authorization: `Bearer ${token()}` }
-    })
+    await api.deactivate(id)
     loadUsers()
   }
 
@@ -59,13 +55,7 @@ export default function UsersTab() {
     setResetting(true)
     setResetMsg('')
     try {
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/auth/${resetDialog.id}/reset-password`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({ newPassword })
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+await api.resetPassword(resetDialog.id, { newPassword })
       setResetMsg('Password reset successfully.')
       setNewPassword('')
       setTimeout(() => setResetDialog(null), 1500)
@@ -90,9 +80,9 @@ export default function UsersTab() {
         <Typography variant="h5" sx={{ color: '#f0f4ff', fontWeight: 700 }}>
           Users ({users.length})
         </Typography>
-        <Button variant="contained" color="primary"
+<Button variant="contained" color="primary"
           startIcon={<PersonAddIcon />}
-          onClick={() => navigate('/admin/create-user')}
+          onClick={() => alert('Create User feature coming soon')}
           sx={{ px: 3, py: 1.2 }}>
           Create User
         </Button>

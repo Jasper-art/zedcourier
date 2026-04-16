@@ -18,8 +18,7 @@ import BadgeIcon from '@mui/icons-material/Badge'
 import DownloadIcon from '@mui/icons-material/Download'
 import TimelineIcon from '@mui/icons-material/Timeline'
 import NotificationsIcon from '@mui/icons-material/Notifications'
-
-const token = () => localStorage.getItem('token')
+import { api } from '../../api'
 
 export default function CollectionTab() {
   // Core states
@@ -123,12 +122,9 @@ export default function CollectionTab() {
     }
   }
 
-  const fetchParcelDetails = async (waybillNumber) => {
+const fetchParcelDetails = async (waybillNumber) => {
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-        headers: { Authorization: `Bearer ${token()}` }
-      })
-      const parcels = await res.json()
+      const parcels = await api.getParcels()
       const parcel = parcels.find(p => p.waybillNumber === waybillNumber)
       if (parcel) {
         setParcelDetails(parcel)
@@ -140,12 +136,9 @@ export default function CollectionTab() {
     }
   }
 
-  const fetchTrackingLogs = async (parcelId) => {
+const fetchTrackingLogs = async (parcelId) => {
     try {
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcelId}`, {
-        headers: { Authorization: `Bearer ${token()}` }
-      })
-      const data = await res.json()
+      const data = await api.apiGet(`parcel/${parcelId}`)
       setTrackingLogs(data.logs || [])
     } catch (err) {
       console.error('Error fetching tracking:', err)
@@ -347,31 +340,23 @@ export default function CollectionTab() {
     win.print()
   }
 
-  const sendReceiptEmail = async (collection) => {
+const sendReceiptEmail = async (collection) => {
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/notification/send-receipt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({
-          recipientEmail: collection.receiverEmail,
-          recipientName: collection.receiverName,
-          recipientPhone: collection.receiverPhone,
-          waybill: collection.waybill,
-          collectDate: new Date().toLocaleString(),
-          sendSms: sendSms,
-          sendWhatsapp: sendWhatsapp
-        })
+      const data = await api.apiPost('notification/send-receipt', {
+        recipientEmail: collection.receiverEmail,
+        recipientName: collection.receiverName,
+        recipientPhone: collection.receiverPhone,
+        waybill: collection.waybill,
+        collectDate: new Date().toLocaleString(),
+        sendSms: sendSms,
+        sendWhatsapp: sendWhatsapp
       })
       
-      if (res.ok) {
-        const data = await res.json()
-        setNotificationStatus({
-          type: 'success',
-          message: 'Receipt sent via ' + [sendEmail && 'Email', sendSms && 'SMS', sendWhatsapp && 'WhatsApp'].filter(Boolean).join(', ')
-        })
-        return true
-      }
-      return false
+      setNotificationStatus({
+        type: 'success',
+        message: 'Receipt sent via ' + [sendEmail && 'Email', sendSms && 'SMS', sendWhatsapp && 'WhatsApp'].filter(Boolean).join(', ')
+      })
+      return true
     } catch (err) {
       console.error('Error sending receipt:', err)
       setNotificationStatus({ type: 'error', message: 'Failed to send receipt' })
@@ -379,22 +364,18 @@ export default function CollectionTab() {
     }
   }
 
-  const notifySender = async (collection) => {
+const notifySender = async (collection) => {
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/notification/notify-sender', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({
-          senderPhone: collection.senderPhone,
-          senderEmail: collection.senderEmail,
-          waybill: collection.waybill,
-          receiverName: collection.receiverName,
-          collectDate: new Date().toLocaleString(),
-          sendSms: sendSms,
-          sendWhatsapp: sendWhatsapp
-        })
+      await api.apiPost('notification/notify-sender', {
+        senderPhone: collection.senderPhone,
+        senderEmail: collection.senderEmail,
+        waybill: collection.waybill,
+        receiverName: collection.receiverName,
+        collectDate: new Date().toLocaleString(),
+        sendSms: sendSms,
+        sendWhatsapp: sendWhatsapp
       })
-      return res.ok
+      return true
     } catch (err) {
       console.error('Error notifying sender:', err)
       return false
@@ -403,28 +384,19 @@ export default function CollectionTab() {
 
   const submitCollection = async (collection, isFromQueue = false) => {
     try {
-      const res = await fetch('https://zedcourier-1.onrender.com/api/v1/parcel', {
-        headers: { Authorization: `Bearer ${token()}` }
-      })
-      const parcels = await res.json()
+      const parcels = await api.getParcels()
       const parcel = parcels.find(p => p.waybillNumber === collection.waybill)
 
       if (!parcel) throw new Error('Parcel not found')
       if (parcel.deliveryPin !== collection.pin) throw new Error('Invalid PIN')
 
       // Submit collection
-      const updateRes = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${parcel.id}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-        body: JSON.stringify({
-          newStatus: 'Collected',
-          notes: collection.notes,
-          deliveryPin: collection.pin,
-          notifySender: true
-        })
+      await api.apiPut(`parcel/${parcel.id}/status`, {
+        newStatus: 'Collected',
+        notes: collection.notes,
+        deliveryPin: collection.pin,
+        notifySender: true
       })
-      if (!updateRes.ok) throw new Error('Verification failed')
-
       // Send notifications
       if (sendEmail || sendSms || sendWhatsapp) {
         await notifySender(collection)

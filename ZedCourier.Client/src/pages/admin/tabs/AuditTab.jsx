@@ -3,7 +3,7 @@ import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import SearchIcon from '@mui/icons-material/Search'
 
-const token = () => localStorage.getItem('token')
+import { api } from '../../api'
 
 export default function AuditTab() {
   const [logs, setLogs] = useState([])
@@ -18,19 +18,13 @@ export default function AuditTab() {
   const [page, setPage] = useState(1)
   const itemsPerPage = 10
 
-  useEffect(() => {
-    Promise.all([
-      fetch('https://zedcourier-1.onrender.com/api/v1/finance/audit', {
-        headers: { Authorization: `Bearer ${token()}` }
-      }).then(r => r.json()),
-      fetch('https://zedcourier-1.onrender.com/api/v1/branch', {
-        headers: { Authorization: `Bearer ${token()}` }
-      }).then(r => r.json())
-    ])
+useEffect(() => {
+    Promise.all([api.getAuditLogs(), api.getBranches()])
       .then(([logsData, branchesData]) => {
-        setLogs(logsData)
-        setBranches(branchesData)
+        setLogs(Array.isArray(logsData) ? logsData : [])
+        setBranches(Array.isArray(branchesData) ? branchesData : [])
       })
+      .catch(() => { setLogs([]); setBranches([]) })
       .finally(() => setLoading(false))
   }, [])
 
@@ -227,7 +221,7 @@ export default function AuditTab() {
                     <Chip label={l.previousStatus || '—'} size="small" sx={{ backgroundColor: '#333', color: '#aaa' }} />
                   </TableCell>
                   <TableCell sx={{ borderBottom: '1px solid #1e1e1e' }}>
-                    <Chip label={l.newStatus} size="small" color="success" />
+                  <Chip label={l.newStatus || '—'} size="small" color={getActionColor(l.actionType)} />  
                   </TableCell>
                   <TableCell sx={{ borderBottom: '1px solid #1e1e1e' }}>
                     <Chip label={l.actionType || 'Unknown'} size="small" color={getActionColor(l.actionType)} />

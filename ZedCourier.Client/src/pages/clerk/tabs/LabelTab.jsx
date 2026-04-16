@@ -4,8 +4,7 @@ import {
   Button, Alert, CircularProgress, Divider
 } from '@mui/material'
 import { QRCodeSVG } from 'qrcode.react' // High-quality SVG QR generator
-
-const token = () => localStorage.getItem('token')
+import { api } from '../../api'
 
 export default function LabelTab() {
   const [waybill, setWaybill] = useState('')
@@ -13,20 +12,14 @@ export default function LabelTab() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSearch = async () => {
+const handleSearch = async () => {
     if (!waybill.trim()) return
     setLoading(true)
     setError('')
     setParcel(null)
     
     try {
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel`, {
-          headers: { Authorization: `Bearer ${token()}` }
-      })
-      
-      if (!res.ok) throw new Error('Unauthorized or Server Error')
-      
-      const allParcels = await res.json()
+      const allParcels = await api.getParcels()
       const found = allParcels.find(p => 
         p.waybillNumber.toLowerCase() === waybill.toLowerCase().trim()
       )

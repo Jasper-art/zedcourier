@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Box, Typography, Card, CardContent, CircularProgress, Grid, Chip } from '@mui/material'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
+import TrendingUpIcon  from '@mui/icons-material/TrendingUp'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from 'recharts'
-
-const token = () => localStorage.getItem('token')
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
+import { api } from '../../api'
 
 const KpiCard = ({ label, value, sub, icon, color }) => (
   <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #222', height: '100%' }}>
@@ -21,30 +20,25 @@ const KpiCard = ({ label, value, sub, icon, color }) => (
   </Card>
 )
 
-export default function RevenueTab() {
-  const [daily, setDaily] = useState([])
-  const [byBranch, setByBranch] = useState([])
-  const [loading, setLoading] = useState(true)
+export default function RevenueTab({ finance = {} }) {
+  const { daily = [], byBranch = [], loading = false } = finance
 
-  useEffect(() => {
-    Promise.all([
-      fetch('https://zedcourier-1.onrender.com/api/v1/finance/daily', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json()),
-      fetch('https://zedcourier-1.onrender.com/api/v1/finance/branch', { headers: { Authorization: `Bearer ${token()}` } }).then(r => r.json())
-    ]).then(([d, b]) => { setDaily(d); setByBranch(b) })
-      .finally(() => setLoading(false))
-  }, [])
+  if (loading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+      <CircularProgress sx={{ color: '#e53935' }} />
+    </Box>
+  )
 
-  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress sx={{ color: '#e53935' }} /></Box>
-
-  // Calculations
+  // Calculations — fix: spread to avoid mutating state
   const totalRevenue = byBranch.reduce((sum, b) => sum + (b.revenue || 0), 0)
-  const avgDaily = daily.length ? (daily.reduce((sum, d) => sum + (d.revenue || 0), 0) / daily.length).toFixed(2) : 0
-  const topBranch = byBranch.length ? byBranch.sort((a, b) => b.revenue - a.revenue)[0] : null
-  const growth = daily.length > 10 ? (((daily[daily.length - 1].revenue - daily[0].revenue) / daily[0].revenue) * 100).toFixed(1) : 0
+  const avgDaily     = daily.length ? (daily.reduce((sum, d) => sum + (d.revenue || 0), 0) / daily.length).toFixed(2) : 0
+  const topBranch    = byBranch.length ? [...byBranch].sort((a, b) => b.revenue - a.revenue)[0] : null
+  const growth       = daily.length > 10
+    ? (((daily[daily.length - 1].revenue - daily[0].revenue) / (daily[0].revenue || 1)) * 100).toFixed(1)
+    : 0
 
-  // Chart data
   const chartData = daily.map(d => ({
-    date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date:    new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     revenue: d.revenue
   }))
 
@@ -61,11 +55,18 @@ export default function RevenueTab() {
           <KpiCard label="Avg Daily" value={`K ${avgDaily}`} icon="📊" color="#4fc3f7" />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <KpiCard label="Growth" value={`${growth}%`} sub="vs first day" icon={<TrendingUpIcon />} color={growth > 0 ? '#4caf50' : '#e53935'} />
+          <KpiCard
+            label="Growth" value={`${growth}%`} sub="vs first day"
+            icon={<TrendingUpIcon />} color={growth > 0 ? '#4caf50' : '#e53935'}
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           {topBranch && (
-            <KpiCard label="Top Branch" value={topBranch.branchName} sub={`K ${topBranch.revenue?.toFixed(2)}`} icon={<EmojiEventsIcon />} color="#ffb74d" />
+            <KpiCard
+              label="Top Branch" value={topBranch.branchName}
+              sub={`K ${topBranch.revenue?.toFixed(2)}`}
+              icon={<EmojiEventsIcon />} color="#ffb74d"
+            />
           )}
         </Grid>
       </Grid>
@@ -80,8 +81,12 @@ export default function RevenueTab() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="date" tick={{ fill: '#999', fontSize: 12 }} />
                 <YAxis tick={{ fill: '#999', fontSize: 12 }} tickFormatter={v => `K${v}`} />
-                <Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #222' }} formatter={v => `K ${v}`} />
-                <Line type="monotone" dataKey="revenue" stroke="#4fc3f7" strokeWidth={2} dot={{ fill: '#4fc3f7', r: 4 }} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #222' }}
+                  formatter={v => [`K ${v}`, 'Revenue']}
+                />
+                <Line type="monotone" dataKey="revenue" stroke="#4fc3f7"
+                  strokeWidth={2} dot={{ fill: '#4fc3f7', r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -94,18 +99,22 @@ export default function RevenueTab() {
           <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #222' }}>
             <CardContent>
               <Typography variant="subtitle1" sx={{ color: '#fff', fontWeight: 600, mb: 2 }}>By Branch</Typography>
-              {byBranch.map((b, i) => (
-                <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, pb: 1.5, borderBottom: '1px solid #222' }}>
-                  <Box>
-                    <Typography sx={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{b.branchName}</Typography>
-                    <Typography sx={{ color: '#666', fontSize: 12 }}>{b.parcels} parcels</Typography>
+              {byBranch.length === 0
+                ? <Typography sx={{ color: '#666' }}>No branch data yet.</Typography>
+                : byBranch.map((b, i) => (
+                  <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, pb: 1.5, borderBottom: '1px solid #222' }}>
+                    <Box>
+                      <Typography sx={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{b.branchName}</Typography>
+                      <Typography sx={{ color: '#666', fontSize: 12 }}>{b.parcels} parcels</Typography>
+                    </Box>
+                    <Chip label={`K ${b.revenue?.toFixed(2)}`} sx={{ backgroundColor: '#4caf5020', color: '#4caf50', fontWeight: 700 }} />
                   </Box>
-                  <Chip label={`K ${b.revenue?.toFixed(2)}`} sx={{ backgroundColor: '#4caf5020', color: '#4caf50', fontWeight: 700 }} />
-                </Box>
-              ))}
+                ))
+              }
             </CardContent>
           </Card>
         </Grid>
+
         <Grid size={{ xs: 12, md: 6 }}>
           <Card sx={{ backgroundColor: '#1a1a1a', border: '1px solid #222' }}>
             <CardContent>

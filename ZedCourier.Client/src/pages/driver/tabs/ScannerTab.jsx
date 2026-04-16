@@ -67,15 +67,9 @@ export default function ScannerTab() {
     })
   }
 
-  const fetchParcelDetails = async waybillNum => {
-    const trackRes  = await fetch(`https://zedcourier-1.onrender.com/api/v1/tracking/${waybillNum.trim()}`)
-    const trackData = await trackRes.json()
-    if (!trackRes.ok) throw new Error(trackData.error || 'Waybill not found')
-
-    const parcelRes  = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${trackData.parcelId}`, {
-      headers: { Authorization: `Bearer ${token()}` }
-    })
-    const parcelData = await parcelRes.json()
+const fetchParcelDetails = async waybillNum => {
+    const trackData = await api.getTracking(waybillNum.trim())
+    const parcelData = await api.apiGet(`parcel/${trackData.parcelId}`)
 
     return {
       parcelId:         trackData.parcelId,
@@ -126,12 +120,10 @@ export default function ScannerTab() {
         localStorage.setItem('offlineScans', JSON.stringify(updated))
         setSuccess(`${selectedParcel.waybill} saved offline — will sync when online.`)
       } else {
-        const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${selectedParcel.parcelId}/status`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-          body: JSON.stringify({ newStatus: STATUS_MAP[action], notes: NOTE_MAP[action] })
+await apiPut(`parcel/${selectedParcel.parcelId}/status`, {
+          newStatus: STATUS_MAP[action],
+          notes: NOTE_MAP[action]
         })
-        if (!res.ok) throw new Error('Status update failed.')
         setSuccess(`✓ ${selectedParcel.waybill} — ${action === 'load' ? 'Loaded onto truck' : 'Dropped at branch'}`)
       }
 
@@ -159,13 +151,12 @@ export default function ScannerTab() {
     }
   }
 
-  const syncOfflineScans = async () => {
+const syncOfflineScans = async () => {
     for (const scan of offlineScans) {
       try {
-        await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${scan.parcelId}/status`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-          body: JSON.stringify({ newStatus: scan.status, notes: NOTE_MAP[scan.action] })
+        await apiPut(`parcel/${scan.parcelId}/status`, {
+          newStatus: scan.status,
+          notes: NOTE_MAP[scan.action]
         })
       } catch (err) { console.error('Sync failed:', err) }
     }
@@ -182,13 +173,12 @@ export default function ScannerTab() {
     for (const wb of waybills) {
       try {
         const data = await fetchParcelDetails(wb)
-        if (isOnline) {
-          const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${data.parcelId}/status`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` },
-            body: JSON.stringify({ newStatus: STATUS_MAP[action], notes: NOTE_MAP[action] })
+if (isOnline) {
+          await apiPut(`parcel/${data.parcelId}/status`, {
+            newStatus: STATUS_MAP[action],
+            notes: NOTE_MAP[action]
           })
-          results.push({ waybill: wb, success: res.ok, error: res.ok ? '' : 'Update failed' })
+          results.push({ waybill: wb, success: true, error: '' })
         } else {
           results.push({ waybill: wb, success: true, offline: true })
         }

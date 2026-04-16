@@ -113,25 +113,11 @@ export default function ManifestTab() {
         : `Offloaded ${selectedParcel.waybill} at ${selectedParcel.deliveryLandmark}. ${notes ? `Notes: ${notes}` : ''}`
 
       // You'll need the parcelId - fetch it first
-      const trackRes = await fetch(`https://zedcourier-1.onrender.com/api/v1/tracking/${selectedParcel.waybill}`, {
-        headers: { Authorization: `Bearer ${token()}` }
+const trackData = await api.getTracking(selectedParcel.waybill)
+      await api.apiPut(`parcel/${trackData.parcelId}/status`, {
+        newStatus: statusMap[selectedParcel.action],
+        notes: notesText
       })
-      const trackData = await trackRes.json()
-      if (!trackRes.ok) throw new Error('Parcel not found')
-
-      const res = await fetch(`https://zedcourier-1.onrender.com/api/v1/parcel/${trackData.parcelId}/status`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token()}`
-        },
-        body: JSON.stringify({
-          newStatus: statusMap[selectedParcel.action],
-          notes: notesText
-        })
-      })
-
-      if (!res.ok) throw new Error('Update failed')
 
       setActionSuccess(`✓ ${selectedParcel.waybill} ${selectedParcel.action === 'load' ? 'loaded' : 'offloaded'} successfully`)
 
