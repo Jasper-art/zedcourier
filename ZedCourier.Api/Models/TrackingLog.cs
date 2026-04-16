@@ -1,4 +1,5 @@
 using System;
+using ZedCourier.Api.Models;
 
 namespace ZedCourier.Api.Models
 {
@@ -12,5 +13,10 @@ namespace ZedCourier.Api.Models
         public string NewStatus { get; set; } = string.Empty;
         public string Notes { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+        // Navigation properties
+        public Parcel? Parcel { get; set; }
+        public Branch? Branch { get; set; }
+        public User? ScannedByUser { get; set; }
     }
 }

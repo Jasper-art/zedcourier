@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ZedCourier.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a6dc199d1b05cdfc756946a8a82053fb9e0c0de")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b70ae41885ccd3911f2849124a7f28704658e381")]
 [assembly: System.Reflection.AssemblyProductAttribute("ZedCourier.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ZedCourier.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

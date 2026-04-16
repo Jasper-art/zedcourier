@@ -211,7 +211,7 @@ await api.resetPassword(resetDialog.id, { newPassword })
         </TableContainer>
       )}
 
-      {/* Reset Password Dialog */}
+{/* Reset Password Dialog */}
       <Dialog open={!!resetDialog} onClose={() => setResetDialog(null)} maxWidth="xs" fullWidth
         PaperProps={{ sx: { backgroundColor: '#0d1b2e', border: '1px solid #1a2f4a' } }}>
         <DialogTitle sx={{ color: '#f0f4ff', borderBottom: '1px solid #1a2f4a' }}>
@@ -235,6 +235,36 @@ await api.resetPassword(resetDialog.id, { newPassword })
           <Button onClick={() => setResetDialog(null)} sx={{ color: '#506680' }}>Cancel</Button>
           <Button variant="contained" color="primary" onClick={handleResetPassword} disabled={resetting}>
             {resetting ? <CircularProgress size={20} color="inherit" /> : 'Reset'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={!!editDialog} onClose={() => setEditDialog(null)} maxWidth="sm" fullWidth
+        PaperProps={{ sx: { backgroundColor: '#0d1b2e', border: '1px solid #1a2f4a' } }}>
+        <DialogTitle sx={{ color: '#f0f4ff', borderBottom: '1px solid #1a2f4a' }}>
+          Edit User — {editDialog?.fullName}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          {editMsg && (
+            <Alert severity={editMsg.includes('success') ? 'success' : 'error'} sx={{ mb: 2 }}>
+              {editMsg}
+            </Alert>
+          )}
+          <TextField fullWidth label="Full Name"
+            value={editData.fullName || ''} onChange={e => setEditData({ ...editData, fullName: e.target.value })}
+            sx={{ mb: 2, mt: 1 }} />
+          <TextField fullWidth label="Email"
+            value={editData.email || ''} onChange={e => setEditData({ ...editData, email: e.target.value })}
+            sx={{ mb: 2 }} />
+          <TextField fullWidth label="WhatsApp Number"
+            value={editData.whatsAppNumber || ''} onChange={e => setEditData({ ...editData, whatsAppNumber: e.target.value })}
+            sx={{ mb: 2 }} />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, borderTop: '1px solid #1a2f4a' }}>
+          <Button onClick={() => setEditDialog(null)} sx={{ color: '#506680' }}>Cancel</Button>
+          <Button variant="contained" color="primary" onClick={handleEditSave} disabled={editing}>
+            {editing ? <CircularProgress size={20} color="inherit" /> : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>
